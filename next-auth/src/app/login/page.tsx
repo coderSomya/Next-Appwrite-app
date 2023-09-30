@@ -8,17 +8,46 @@ import {Toaster, toast} from "react-hot-toast";
 import { NextRequest } from "next/server";
 
 export default function LoginPage(){  
+    const router= useRouter();
     const [user, setUser] = React.useState({
         email: "",
         password:"",
     })
 
-    const onLogin = async()=>{
+    const [buttonDisabled, setButtonDisabled] = React.useState(true);
+    const [loading, setLoading] = React.useState(false);
 
+    const onLogin = async()=>{
+        setLoading(true)
+        try {
+            const response = await axios.post("/users/api/login/", user);
+            toast.success("Login successful");
+            router.push("/profile");        
+        } catch (error: any) {
+            console.log("Login failed", error.message);
+            toast.error(error.message)
+        }finally{
+            setLoading(false)
+        }
     }
+
+    React.useEffect(()=>{
+        if(user.email.length>0 && user.password.length>0){
+            setButtonDisabled(false);
+        }
+        else{
+            setButtonDisabled(true);
+        }
+    }, [user]);
+   
 
 
     return (
+        <>
+        <Toaster
+        position="top-center"
+        reverseOrder={false}
+        />
        <div className="flex flex-col items-center justify-center min-h-screen py-2">
         <h1>Login</h1>
         <hr />
@@ -43,6 +72,6 @@ export default function LoginPage(){
 
        <Link href="/signup">Signup first</Link>
        </div>
-
+       </>
     );
 }
