@@ -2,25 +2,58 @@
 
 import Link from "next/link";
 import React from "react";
-import {useRouter} from "next/navigation";
-import {axios} from "axios"
+import {useRouter, useSearchParams} from "next/navigation";
+import axios from "axios"
+import {Toaster, toast} from "react-hot-toast";
+import { NextRequest } from "next/server";
 
-export default function SignupPage(){  
+export default function SignupPage(){
+    
+    const router = useRouter();
     const [user, setUser] = React.useState({
         email: "",
         password:"",
         username:""
     })
+    const [buttonDisabled, setButtonDisabled] = React.useState(true);
+    const [loading, setLoading] = React.useState(false);
 
     const onSignup = async()=>{
-
+         try {
+           
+            setLoading(true);
+            const response = await axios.post("/api/users/signup", user);
+            
+            toast.success("Successfully signed up", response.data)
+            router.push("/login")
+         } catch (error: any) {
+            toast.error("something went wrong", error)
+         }finally{
+            setLoading(false)
+         }
     }
+
+    React.useEffect(()=>{
+        if(user.email.length>0 && user.password.length>0 && user.username.length>0){
+            setButtonDisabled(false);
+        }
+        else{
+            setButtonDisabled(true);
+        }
+    }, [user]);
+
+
 
 
     return (
+        <>
+        <Toaster
+  position="top-center"
+  reverseOrder={false}
+/>
        <div className="flex flex-col items-center justify-center min-h-screen py-2">
-        <h1>Signup</h1>
-        <hr />
+        <h1>{loading ? "Signup" : "Processing"}</h1>
+        <hr/>
         <label htmlFor="username">username</label>
         <input className="text-black px-1" type="text" id="username" value={user.username} onChange={(e)=>
         setUser({...user, username: e.target.value})}
@@ -40,13 +73,13 @@ export default function SignupPage(){
         placeholder="password"
         />
         
-       <button
+       {!buttonDisabled && <button
        className="my-3 p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-600"
        onClick={onSignup}
-       >Signup</button>
+       >Signup</button>}
 
        <Link href="/login">Login instead</Link>
        </div>
-
+       </>
     );
 }
