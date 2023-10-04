@@ -9,14 +9,15 @@ connect()
 
 export async function POST(request: NextRequest){
     try {
+      
         const reqBody = await request.json();
-
+        
         const {email, password} = reqBody;
 
         //check if user exists
         const user= await User.findOne({email});
       
-
+        
         if(!user){
             return NextResponse.json(
                 {error: "User doesn't exist",
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest){
         const response = new NextResponse(
          JSON.stringify({message: "Login successfully", status: "200"})
         )
-
+       
         response.cookies.set(
             "token",
             token,
