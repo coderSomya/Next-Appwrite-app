@@ -11,14 +11,15 @@ export async function GET(request: NextRequest){
         const response = await getDataFromToken(request);
         alert(response);
 
-        const user= User.findOne({
+        const user= await User.findOne({
             _id: response.id
-        })
+        }) 
 
-        return NextResponse.json({
-            message: "user found",
-            data: user
-        })
+     
+        
+   return new NextResponse(
+        JSON.stringify({ message: "user found", status: "200" , data: user})
+      );
     } catch (error: any) {
         return NextResponse.json({
             error:error.message
